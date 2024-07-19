@@ -1,13 +1,28 @@
 #!/bin/sh
 
-# Führt Datenbankmigrationen durch
 python manage.py migrate --noinput
 
-# Erstellt einen Superuser falls dieser noch nicht existiert
-echo "from django.contrib.auth import get_user_model; User = get_user_model(); \
-if not User.objects.filter(username='admin').exists(): \
-    User.objects.create_superuser('admin', 'admin@example.com', 'password')" \
-| python manage.py shell
+echo "
+from django.contrib.auth import get_user_model;
+import os;
+from dotenv import load_dotenv
 
-# Starte den Django-Server
+# Lade Umgebungsvariablen aus der .env-Datei
+load_dotenv()
+
+# Überprüfe, ob die Umgebungsvariablen geladen wurden
+username = os.getenv('DJANGO_SUPERUSER_USERNAME')
+email = os.getenv('DJANGO_SUPERUSER_EMAIL')
+password = os.getenv('DJANGO_SUPERUSER_PASSWORD')
+
+print(f'Username: {username}')
+print(f'Email: {email}')
+print(f'Password: {password}')
+
+User = get_user_model();
+
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username, email, password)
+" | python manage.py shell
+
 exec "$@"

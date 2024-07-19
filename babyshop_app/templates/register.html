@@ -5,15 +5,15 @@
     {% csrf_token %}
     <div class="container content-center mt-4">
     <div class="mb-3">
-      <label class="form-label">Ad</label>
+      <label class="form-label">Firstname</label>
       {{form.first_name}}
     </div>
     <div class="mb-3">
-      <label  class="form-label">Soyad</label>
+      <label  class="form-label">Lastname</label>
       {{form.last_name}}
     </div>
     <div class="mb-3">
-        <label  class="form-label">Kullanıcı Adı</label>
+        <label  class="form-label">username</label>
         {{form.username}}
     </div>
     <div class="mb-3">
@@ -21,11 +21,11 @@
         {{form.email}}
     </div>
     <div class="mb-3">
-        <label  class="form-label">Parola</label>
+        <label  class="form-label">password</label>
         {{form.password1}}
     </div>
     <div class="mb-3">
-        <label  class="form-label">Tekrar Parola</label>
+        <label  class="form-label">password repeat</label>
         {{form.password2}}
     </div>
 
