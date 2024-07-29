@@ -2,6 +2,6 @@
 
 python manage.py migrate --noinput
 python manage.py createsuperuser --noinput --username ${DJANGO_SUPERUSER_USERNAME} --email ${DJANGO_SUPERUSER_EMAIL} || true
-python manage.py runserver 0.0.0.0:${DJANGO_PORT}
+exec gunicorn babyshop.wsgi:application --bind 0.0.0.0:${DJANGO_PORT}
 
 
