@@ -1,37 +1,23 @@
-# E-Commerce Project For Baby Tools
+# Baby Tool Shop Containerization
 
-### TECHNOLOGIES
+This repository demonstrates the containerization of a Baby Tool Shop application using Docker. The goal is to run the DJANGO application inside a Docker container and make it accessible on the internet via an Nginx web server on port 8025. In case of a container failure, the container will automatically restart. Using a Docker Volume ensures data persistence, so that any new or restarted container operates with the same data, preventing data loss when a container is shut down.
+This is a step by step guide for the containerization, the Django Project is forked:
 
-- Python 3.9
-- Django 4.0.2
-- Venv
+## Table of Contents
 
-### Hints
-
-This section will cover some hot tips when trying to interacting with this repository:
-
-- Settings & Configuration for Django can be found in `babyshop_app/babyshop/settings.py`
-- Routing: Routing information, such as available routes can be found from any `urls.py` file in `babyshop_app` and corresponding subdirectories
-
-### Photos
-
-##### Home Page with login
-
-<img alt="" src="https://github.com/MET-DEV/Django-E-Commerce/blob/master/project_images/capture_20220323080815407.jpg"></img>
-##### Home Page with filter
-<img alt="" src="https://github.com/MET-DEV/Django-E-Commerce/blob/master/project_images/capture_20220323080840305.jpg"></img>
-##### Product Detail Page
-<img alt="" src="https://github.com/MET-DEV/Django-E-Commerce/blob/master/project_images/capture_20220323080934541.jpg"></img>
-
-##### Home Page with no login
-<img alt="" src="https://github.com/MET-DEV/Django-E-Commerce/blob/master/project_images/capture_20220323080953570.jpg"></img>
+1. [Fork repository from GitHub](#1-fork-respository-from-github)
+2. [Log in on Server](#2-log-in-on-server)
+3. [Copy public key to server](#3-copy-public-key-to-server)
+4. [Disable password login](#4-disable-password-login)
+5. [Configure your server & add webserver](#5-configure-your-server--add-webserver)
 
 
-##### Register Page
+## 1. Fork respository from GitHub
 
-<img alt="" src="https://github.com/MET-DEV/Django-E-Commerce/blob/master/project_images/capture_20220323081016022.jpg"></img>
+We don't develop the whole application, we forke it, so we can focus on the work with Docker.
+Fork the repository from [here](https://github.com/Developer-Akademie-GmbH/baby-tools-shop).
+Now we are ready to start! 
+
+## 2. Open terminal an create dockerfile
 
 
-##### Login Page
-
-<img alt="" src="https://github.com/MET-DEV/Django-E-Commerce/blob/master/project_images/capture_20220323081044867.jpg"></img>
