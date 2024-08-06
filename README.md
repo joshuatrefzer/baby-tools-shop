@@ -9,6 +9,10 @@ This is a step by step guide for the containerization. Make sure you have set up
 2. [Create Dockerfile](#2-create-dockerfile)
 3. [Generate requirements.txt - file](#3-generate-requirementstxt---file)
 4. [Create entrypoint-commands](#4-create-entrypoint-commands)
+5. [Clone repository to V-Server](#5-log-in-on-your-v-server--pull-repository)
+6. [Build container](#6-build-container)
+7. [RuncContainer](#7-run-container)
+8. [Test URL](#8-test-your-url)
 
 ## 1. Fork respository from GitHub
 
@@ -140,7 +144,7 @@ if __name__ == '__main__':
 # write out and exit
 ```
 
-## 5. Log in on your V-Server | pull repository
+## 5. Clone repository on V-Server
 Now you have to get the code on your V-Server. Set up nginx and clone the repository from GitHub.
 If you don't know these steps, you can read this in this respository about [V-Server Setup](https://github.com/joshuatrefzer/V-Server-setup).
 In addition, make sure your V-Server is "docker-ready".
@@ -181,7 +185,7 @@ Make sure it looks like that. If so, everything worked out:
 ![Docker-build](/readme-img/docker-build.png)
 
 
-## 6. Run Container
+## 7. Run Container
 Now we can run this container with this command:
 ```sh
 docker run -it --restart on-failure --mount source=db_volume,target=/app  -p 8025:8025 babyshop
@@ -212,7 +216,7 @@ If everything worked out properly, you should see this in your console:
 
 ![Docker-run](/readme-img/docker-run.png)
 
-## 7. Test your URL
+## 8. Test URL
 You should be able now to get the expected result on this URL in your Browser:
 "http://<*your-ip-adress or localhost*>:8025" 
 
