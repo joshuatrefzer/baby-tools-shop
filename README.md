@@ -7,6 +7,8 @@ This is a step by step guide for the containerization. Make sure you have set up
 
 1. [Fork repository from GitHub](#1-fork-respository-from-github)
 2. [Create Dockerfile](#2-create-dockerfile)
+3. [Generate requirements.txt - file](#3-generate-requirementstxt---file)
+4. [Create entrypoint-commands](#4-create-entrypoint-commands)
 
 ## 1. Fork respository from GitHub
 
@@ -137,6 +139,102 @@ if __name__ == '__main__':
 
 # write out and exit
 ```
+
+## 5. Log in on your V-Server | pull repository
+Now you have to get the code on your V-Server. Set up nginx and clone the repository from GitHub.
+If you don't know these steps, you can read this in this respository about [V-Server Setup](https://github.com/joshuatrefzer/V-Server-setup).
+In addition, make sure your V-Server is "docker-ready".
+
+## 6. Build Container 
+Navigate to the respository, to the directory, where your Dockerfile is located. 
+Now you can run this command to build your container
+
+> [!Warning]
+> This is only to show the way it works, please read the following step, to use environment variables! 
+
+```sh
+docker build --no-cache -t babyshop --build-arg DEFAULT_ROOT_PASSWORD='yourpassword' --build-arg DEFAULT_ROOT_EMAIL='your-email@example.com' --build-arg DEFAULT_ROOT_USERNAME='your-username' -f Dockerfile .
+
+```
+> [!Important]
+> To avoid hardcoding sensitive information like passwords and emails in your build command, you can use environment variables. Follow these steps:
+
+#### 1. Create .env file
+Create a .env file in the same directory as your Dockerfile and add your environment variables (This data is for the django - superuser):
+```sh
+DEFAULT_ROOT_PASSWORD=yourpassword
+DEFAULT_ROOT_EMAIL=your-email@example.com
+DEFAULT_ROOT_USERNAME=your-username
+```
+#### 2. Export variables
+```sh 
+export $(cat .env | xargs)
+```
+
+#### 3. Change your Docker - build command
+```sh 
+docker build --no-cache -t babyshop --build-arg DEFAULT_ROOT_PASSWORD=${DEFAULT_ROOT_PASSWORD} --build-arg DEFAULT_ROOT_EMAIL=${DEFAULT_ROOT_EMAIL} --build-arg DEFAULT_ROOT_USERNAME=${DEFAULT_ROOT_USERNAME} -f Dockerfile .
+```
+Now you can run this command to build your container.
+
+Make sure it looks like that. If so, everything worked out:
+![Docker-build](/readme-img/docker-build.png)
+
+
+## 6. Run Container
+Now we can run this container with this command:
+```sh
+docker run -it --restart on-failure --mount source=db_volume,target=/app  -p 8025:8025 babyshop
+```
+Explain the flags:
+
+```sh
+--restart on-failure #This option sets the container's restart policy. The container will only restart if it exits with a non-zero (error) status. This is useful for automatically recovering from failures.
+
+-it #This option combines two flags:
+-i # --interactive: Keeps the container's standard input (stdin) open even if not attached.
+-t # or --tty: Allocates a pseudo-TTY. This allows for interactive communication with the container (similar to an SSH session).
+
+source=db_volume #Uses the docker volume. In this case it will create one. After you stop the container and restart another with this flag, the data will be persistent.
+
+target=/app #Specifies the directory inside the container where the volume will be mounted. This ensures data persistence between container restarts and recreations.
+
+#combined:
+
+--mount source=db_volume,target=/app #This option mounts a volume into the container.
+
+-p 8025:8025 #This maps port 8025 on the host to port 8025 in the container. This allows access to the application in the container http://<your-ip-adress>:8025
+
+babyshop #The name of the container who's running now
+```
+
+If everything worked out properly, you should see this in your console:
+
+![Docker-run](/readme-img/docker-run.png)
+
+## 7. Test your URL
+You should be able now to get the expected result on this URL in your Browser:
+"http://<*your-ip-adress or localhost*>:8025" 
+
+![Success](/readme-img/success.png)
+
+Now your application is running inside your Docker Container and is reachable in the internet (if you did it on the V-Server with nginx). 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
