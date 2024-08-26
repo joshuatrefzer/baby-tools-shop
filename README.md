@@ -8,7 +8,7 @@ This is a step by step guide for the containerization. Make sure you have set up
 1. [Fork repository from GitHub](#1-fork-respository-from-github)
 2. [Create Dockerfile](#2-create-dockerfile)
 3. [Generate requirements.txt - file](#3-generate-requirementstxt---file)
-4. [Create entrypoint-commands](#4-create-entrypoint-commands)
+4. [create_superuser.py](#4-create-file-create_superuserpy)
 5. [Clone repository to V-Server](#5-log-in-on-your-v-server--pull-repository)
 6. [Build container](#6-build-container)
 7. [RuncContainer](#7-run-container)
