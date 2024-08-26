@@ -16,66 +16,53 @@ This is a step by step guide for the containerization. Make sure you have set up
 
 ## 1. Fork respository from GitHub
 
-We don't develop the whole application, we forked it, so we can focus on the work with Docker.
-Fork the repository from [here](https://github.com/Developer-Akademie-GmbH/baby-tools-shop).
-Now we are ready to start! 
+To focus on working with Docker, the entire application is not developed from scratch. Instead, the repository is forked. The repository can be forked from [here](https://github.com/Developer-Akademie-GmbH/baby-tools-shop). Now everything is ready to start!
 
 
 ## 2. Create Dockerfile
 
-Make shure you go to this directiory (this is where manage.py is located): 
+Make shure you go to the root directiory: 
 ```sh 
-cd /baby-tools-shop/babyshop_app/ 
+cd /baby-tools-shop 
 ```
-...then create your Dockerfile into this directory with:
+Create your Dockerfile into this directory with:
 ```sh
 touch Dockerfile
 ```
-...then edit your Dockerfile:
+Edit your Dockerfile:
 ```sh
 
-# Set up your base image
 FROM python:3.10-alpine
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy all files from the current directory to the container
 COPY . .
 
-# Define build arguments - this arguments you can later give to the container within the build command. You should use environment variables for this. More to this in section (???????)
-ARG PORT=8025
-ARG DEFAULT_ROOT_PASSWORD
-ARG DEFAULT_ROOT_USERNAME
-ARG DEFAULT_ROOT_EMAIL
+ENV DJANGO_PORT=8025
+ENV DJANGO_SUPERUSER_USERNAME=${DEFAULT_ROOT_USERNAME}
+ENV DJANGO_SUPERUSER_EMAIL=${DEFAULT_ROOT_EMAIL}
+ENV DJANGO_SUPERUSER_PASSWORD=${DEFAULT_ROOT_PASSWORD}
 
-# Set environment variables
-ENV DJANGO_PORT=$PORT
-ENV DJANGO_SUPERUSER_USERNAME=$DEFAULT_ROOT_USERNAME
-ENV DJANGO_SUPERUSER_EMAIL=$DEFAULT_ROOT_EMAIL
-ENV DJANGO_SUPERUSER_PASSWORD=$DEFAULT_ROOT_PASSWORD
+RUN python -m pip install --no-cache-dir -r requirements.txt 
 
-# Copy the entrypoint script to the container and make it executable
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh 
+WORKDIR /app/babyshop_app
 
-# Install the required Python packages
-RUN python -m pip install --no-cache-dir -r requirements.txt
-
-# Expose the application port
 EXPOSE 8025
 
-# Set the entrypoint script to run when the container starts
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["sh", "-c", "python manage.py migrate --noinput && \
+    python manage.py collectstatic --noinput && \
+    python create_superuser.py && \
+    gunicorn babyshop.wsgi:application --bind 0.0.0.0:${DJANGO_PORT}"]
+
 ``` 
 
 ## 3. Generate requirements.txt - file
 
-At first you should create the file (into the same directory as Dockerfile, manage.py):
+At first, create the file (into the same directory as Dockerfile):
 ```sh
  touch requirements.txt
 ```
-...then type in these dependencies:
+Type in these dependencies:
 
 ```sh
 asgiref==3.8.1
@@ -86,33 +73,21 @@ gunicorn
 ```
 Write out and exit
 
-## 4. Create entrypoint-commands 
+## 4. Create file "create_superuser.py" 
 
-Into the same directory, we create two more files:
-
-#### entrypoint.sh
-This script is called by the dockerfile, when you execute the "docker run" command
+Now go to one directory deeper.
 
 ```sh
-touch entrypoint.sh 
-
-# type in these commands:
-
-python manage.py migrate --noinput
-python manage.py collectstatic --noinput
-python create_superuser.py
-exec gunicorn babyshop.wsgi:application --bind 0.0.0.0:${DJANGO_PORT}
-
-#write out and exit
+cd /babyshop_app
 ```
+
 #### create_superuser.py
-This script is called by the entrypoint.sh - script. It controls the behavior, if a superuser should be created or not (when container restards).
+This script is called by the dockerfile. It controls the behavior, if a superuser should be created or not (when container restards).
 
 ```sh
 touch create_superuser.py 
 
 # type in this code
-
 import os
 import django
 from django.contrib.auth import get_user_model
@@ -153,42 +128,27 @@ In addition, make sure your V-Server is "docker-ready".
 Navigate to the respository, to the directory, where your Dockerfile is located. 
 Now you can run this command to build your container
 
-> [!Warning]
-> This is only to show the way it works, please read the following step, to use environment variables! 
-
 ```sh
-docker build --no-cache -t babyshop --build-arg DEFAULT_ROOT_PASSWORD='yourpassword' --build-arg DEFAULT_ROOT_EMAIL='your-email@example.com' --build-arg DEFAULT_ROOT_USERNAME='your-username' -f Dockerfile .
-
+docker build -t babyshop -f Dockerfile .
 ```
-> [!Important]
-> To avoid hardcoding sensitive information like passwords and emails in your build command, you can use environment variables. Follow these steps:
 
-#### 1. Create .env file
-Create a .env file in the same directory as your Dockerfile and add your environment variables (This data is for the django - superuser):
+
+#### 1. Create .docker-env file
+Create a .docker-env file in the same directory as your Dockerfile and add your environment variables (This data is for the django - superuser):
 ```sh
 DEFAULT_ROOT_PASSWORD=yourpassword
 DEFAULT_ROOT_EMAIL=your-email@example.com
 DEFAULT_ROOT_USERNAME=your-username
 ```
-#### 2. Export variables
-```sh 
-export $(cat .env | xargs)
-```
-
-#### 3. Change your Docker - build command
-```sh 
-docker build --no-cache -t babyshop --build-arg DEFAULT_ROOT_PASSWORD=${DEFAULT_ROOT_PASSWORD} --build-arg DEFAULT_ROOT_EMAIL=${DEFAULT_ROOT_EMAIL} --build-arg DEFAULT_ROOT_USERNAME=${DEFAULT_ROOT_USERNAME} -f Dockerfile .
-```
-Now you can run this command to build your container.
-
-Make sure it looks like that. If so, everything worked out:
-![Docker-build](/readme-img/docker-build.png)
-
 
 ## 7. Run Container
 Now we can run this container with this command:
 ```sh
-docker run -it --restart on-failure --mount source=db_volume,target=/app  -p 8025:8025 babyshop
+docker run -it --restart on-failure  \
+    --mount source=db_volume,target=/app \
+    --env-file .docker-env \
+    -p 8025:8025 \
+    babyshop
 ```
 Explain the flags:
 
@@ -200,6 +160,8 @@ Explain the flags:
 -t # or --tty: Allocates a pseudo-TTY. This allows for interactive communication with the container (similar to an SSH session).
 
 source=db_volume #Uses the docker volume. In this case it will create one. After you stop the container and restart another with this flag, the data will be persistent.
+
+--env-file .docker-env #takes the docker-env file's variables as environment variables for inside the container.
 
 target=/app #Specifies the directory inside the container where the volume will be mounted. This ensures data persistence between container restarts and recreations.
 
