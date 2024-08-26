@@ -19,7 +19,7 @@ def create_superuser():
 
         User.objects.create_superuser(username=username, email=email, password=password)
     else:
-        print("Superuser already exists. Skipping superuser creation.")
+        print(f"Superuser already exists. Skipping superuser creation. ({User.username} , {User.email})")
 
 if __name__ == '__main__':
     create_superuser()
