@@ -11,7 +11,7 @@ This is a step by step guide for the containerization. Make sure you have set up
 4. [create_superuser.py](#4-create-file-create_superuserpy)
 5. [Clone repository to V-Server](#5-log-in-on-your-v-server--pull-repository)
 6. [Build container](#6-build-container)
-7. [RuncContainer](#7-run-container)
+7. [Run container](#7-run-container)
 8. [Test URL](#8-test-your-url)
 
 ## 1. Fork respository from GitHub
