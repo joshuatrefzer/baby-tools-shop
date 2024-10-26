@@ -9,10 +9,9 @@ This is a step by step guide for the containerization. Make sure you have set up
 2. [Create Dockerfile](#2-create-dockerfile)
 3. [Generate requirements.txt - file](#3-generate-requirementstxt---file)
 4. [create_superuser.py](#4-create-file-create_superuserpy)
-5. [Clone repository to V-Server](#5-log-in-on-your-v-server--pull-repository)
-6. [Build container](#6-build-container)
-7. [Run container](#7-run-container)
-8. [Test URL](#8-test-your-url)
+5. [Build container](#6-build-container)
+6. [Run container](#7-run-container)
+7. [Test URL](#8-test-your-url)
 
 ## 1. Fork respository from GitHub
 
@@ -38,21 +37,19 @@ WORKDIR /app
 
 COPY . .
 
-ENV DJANGO_PORT=8025
-ENV DJANGO_SUPERUSER_USERNAME=${DEFAULT_ROOT_USERNAME}
-ENV DJANGO_SUPERUSER_EMAIL=${DEFAULT_ROOT_EMAIL}
-ENV DJANGO_SUPERUSER_PASSWORD=${DEFAULT_ROOT_PASSWORD}
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
-RUN python -m pip install --no-cache-dir -r requirements.txt 
+RUN cd /app/babyshop_app && \
+    python manage.py migrate --noinput && \
+    python manage.py collectstatic --noinput && \
+    python create_superuser.py
 
 WORKDIR /app/babyshop_app
 
 EXPOSE 8025
 
-ENTRYPOINT ["sh", "-c", "python manage.py migrate --noinput && \
-    python manage.py collectstatic --noinput && \
-    python create_superuser.py && \
-    gunicorn babyshop.wsgi:application --bind 0.0.0.0:${DJANGO_PORT}"]
+ENTRYPOINT ["gunicorn", "babyshop.wsgi:application", "--bind", "0.0.0.0:8025"]
+
 
 ``` 
 
@@ -119,12 +116,7 @@ if __name__ == '__main__':
 # write out and exit
 ```
 
-## 5. Clone repository on V-Server
-Now you have to get the code on your V-Server. Set up nginx and clone the repository from GitHub.
-If you don't know these steps, you can read this in this respository about [V-Server Setup](https://github.com/joshuatrefzer/V-Server-setup).
-In addition, make sure your V-Server is "docker-ready".
-
-## 6. Build Container 
+## 5. Build Container 
 Navigate to the respository, to the directory, where your Dockerfile is located. 
 Now you can run this command to build your container
 
@@ -141,7 +133,7 @@ DEFAULT_ROOT_EMAIL=your-email@example.com
 DEFAULT_ROOT_USERNAME=your-username
 ```
 
-## 7. Run Container
+## 6. Run Container
 Now we can run this container with this command:
 ```sh
 docker run -it --restart on-failure  \
@@ -178,7 +170,7 @@ If everything worked out properly, you should see this in your console:
 
 ![Docker-run](/readme-img/docker-run.png)
 
-## 8. Test URL
+## 7. Test URL
 You should be able now to get the expected result on this URL in your Browser:
 "http://<*your-ip-adress or localhost*>:8025" 
 
