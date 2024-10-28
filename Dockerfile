@@ -6,12 +6,10 @@ COPY . .
 
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
-RUN cd /app/babyshop_app && \
-    python manage.py migrate --noinput && \
-    python manage.py collectstatic --noinput && \
-    python create_superuser.py
-
 WORKDIR /app/babyshop_app
+
+RUN python manage.py migrate --noinput && \
+    python manage.py collectstatic --noinput 
 
 EXPOSE 8025
 

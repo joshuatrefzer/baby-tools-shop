@@ -11,6 +11,7 @@ This is a step by step guide for the containerization. Make sure you have set up
 4. [create_superuser.py](#4-create-file-create_superuserpy)
 5. [Build container](#6-build-container)
 6. [Run container](#7-run-container)
+7. [Docker-Exec](#7-docker-exec)
 7. [Test URL](#8-test-your-url)
 
 ## 1. Fork respository from GitHub
@@ -39,18 +40,14 @@ COPY . .
 
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
-RUN cd /app/babyshop_app && \
-    python manage.py migrate --noinput && \
-    python manage.py collectstatic --noinput && \
-    python create_superuser.py
-
 WORKDIR /app/babyshop_app
+
+RUN python manage.py migrate --noinput && \
+    python manage.py collectstatic --noinput 
 
 EXPOSE 8025
 
 ENTRYPOINT ["gunicorn", "babyshop.wsgi:application", "--bind", "0.0.0.0:8025"]
-
-
 ``` 
 
 ## 3. Generate requirements.txt - file
@@ -116,21 +113,20 @@ if __name__ == '__main__':
 # write out and exit
 ```
 
+#### Create .docker-env file
+Create a .docker-env file in the same directory as your Dockerfile and add your environment variables (This data is for the django - superuser):
+```sh
+DEFAULT_ROOT_PASSWORD=yourpassword
+DEFAULT_ROOT_EMAIL=your-email@example.com
+DEFAULT_ROOT_USERNAME=your-username
+```
+
 ## 5. Build Container 
 Navigate to the respository, to the directory, where your Dockerfile is located. 
 Now you can run this command to build your container
 
 ```sh
 docker build -t babyshop -f Dockerfile .
-```
-
-
-#### 1. Create .docker-env file
-Create a .docker-env file in the same directory as your Dockerfile and add your environment variables (This data is for the django - superuser):
-```sh
-DEFAULT_ROOT_PASSWORD=yourpassword
-DEFAULT_ROOT_EMAIL=your-email@example.com
-DEFAULT_ROOT_USERNAME=your-username
 ```
 
 ## 6. Run Container
@@ -170,7 +166,20 @@ If everything worked out properly, you should see this in your console:
 
 ![Docker-run](/readme-img/docker-run.png)
 
-## 7. Test URL
+## 7. Docker Exec 
+Use the following command in your shell to get the id of your running container:
+
+```sh
+    docker ps 
+```
+Copy the container id and use the following command to get inside the started container and start the script to handle creation of superuser.
+
+```sh
+    docker exec -it containerid sh
+    python create_superuser.py 
+```
+
+## 8. Test URL
 You should be able now to get the expected result on this URL in your Browser:
 "http://<*your-ip-adress or localhost*>:8025" 
 
