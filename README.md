@@ -54,7 +54,7 @@ DEFAULT_ROOT_USERNAME="your-username"
 ```
 
 > [!WARNING]  
-> Ensure .docker-env or any file with sensitive data is listed in .gitignore to prevent accidentally pushing it to GitHub.le in the .gitignore - file, to prevent pushing sinsitive data to GitHub!
+> Ensure .docker-env or any file with sensitive data is listed in .gitignore to prevent accidentally pushing it to GitHub.
 
 
 ## Build Container 
