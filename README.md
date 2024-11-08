@@ -100,7 +100,7 @@ Now your application is running inside your Docker Container and is reachable in
 
 # Details
 
-This is a section....
+In this section, you’ll find detailed explanations of key code snippets essential for containerization.
 
 ## Dockerfile
 
