@@ -37,20 +37,13 @@ Clone this repository and make sure Docker is installed an is running on your ma
     git clone git@github.com:joshuatrefzer/baby-tools-shop.git
 ```
 
-## Install Dependencies
-
-Navigate into the project directory and use the following command to install dependencies: 
-```sh
-pip install -r requirements.txt
-```
-
 ## Manage Credentials 
 Create a .docker-env file in the root directory (where the Dockerfile is located) to store environment variables required for creating a Django superuser:
 
 ```sh
-DEFAULT_ROOT_PASSWORD="yourpassword"
-DEFAULT_ROOT_EMAIL="your-email@example.com"
-DEFAULT_ROOT_USERNAME="your-username"
+DJANGO_SUPERUSER_PASSWORD="yourpassword"
+DJANGO_SUPERUSER_EMAIL="your-email@example.com"
+DJANGO_SUPERUSER_USERNAME="your-username"
 ```
 
 > [!WARNING]  
@@ -62,29 +55,27 @@ Make shure you are in the respository's root directory, where the Dockerfile is 
 Use the following command to build a new container.
 
 ```sh
-docker build -t babyshop -f Dockerfile .
+docker build -t babyshop .
 ```
 
 ## Run Container
 Now we can run this container with this command:
 ```sh
-docker run -it --restart on-failure  \
-    --mount source=db_volume,target=/app \
-    --env-file .docker-env \
-    -p 8025:8025 \
-    babyshop
+	docker run -it --name babyshop --restart on-failure \
+	    --mount source=db_volume,target=/app \
+	    --env-file .docker-env \
+	    -p $(PORT):$(PORT) \
+	    babyshop
 ```
 
 ## Create Superuser
-To create a Django superuser, first get the container ID:
-
+Access the container's shell:
 ```sh
-    docker ps 
+    docker exec -it babyshop sh 
 ```
-Then, use the container ID to access the container and create the superuser:
 
+Run the Python script to create the superuser:
 ```sh
-    docker exec -it <container_id> sh 
     python create_superuser.py 
 ```
 
